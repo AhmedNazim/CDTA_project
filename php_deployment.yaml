@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: php
+  labels:
+    app: php
+    tier: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: php
+      tier: backend
+  template:
+    metadata:
+      labels:
+        app: php
+        tier: backend
+    spec:
+      enableServiceLinks: false
+      containers:
+        - name: php
+          image: docker.io/nazimgaoua/dali:v1
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: code
+              mountPath: /code
+          lifecycle:
+            postStart:
+              exec:
+                command: [ "/bin/sh", "-c", "cp -r /var/www/. /code" ]
+          env:
+            - name: APP_NAME
+              value: "Laravel"
+            - name: APP_KEY
+              value: "base64:sE2yEDDw/IacZi0SVfzayGD0N0/agcFTieam5fhxLK4="
+            - name: APP_ENV
+              value: "local"
+            - name: APP_URL
+              value: "http://localhost"
+            - name: DB_CONNECTION
+              value: "mysql"
+            - name: DB_HOST
+              value: "mysql"
+            - name: DB_DATABASE
+              value: "sdproject"
+            - name: DB_PORT
+              value: "3306"
+            - name: DB_USERNAME
+              value: "root"
+            - name: DB_PASSWORD
+              value: "root"
+            - name: QUEUE_CONNECTION
+              value: "sync"
+      volumes:
+        - name: code
+          persistentVolumeClaim:
+            claimName: code
